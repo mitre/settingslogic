@@ -8,3 +8,15 @@ benchmarks/*
 .bundle
 vendor/bundle
 .rvmrc
+
+# Claude/Session files
+CLAUDE.md
+session.md
+recovery-prompt.md
+pr-summary.md
+RECOVERY-SESSION-*.md
+*recovery*.md
+*session*.md
+
+# Archive directory for session/development files
+archive/
