@@ -1,5 +1,5 @@
 setting1:
-  setting1_child: saweet
+  setting1_child: test_value
   deep:
     another: my value
     child:
