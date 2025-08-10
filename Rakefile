@@ -62,22 +62,22 @@ end
 
 def update_changelog(version, type)
   changelog = 'CHANGELOG.md'
-  
+
   # Check if git-cliff is available
   has_git_cliff = system('which git-cliff > /dev/null 2>&1')
-  
+
   if has_git_cliff
     # Use git-cliff to generate changelog
-    puts "Generating changelog with git-cliff..."
+    puts 'Generating changelog with git-cliff...'
     system("git-cliff --tag v#{version} --output #{changelog}")
     puts "✅ Generated CHANGELOG.md with git-cliff for version #{version}"
   else
     # Fallback to manual changelog update
     date = Time.now.strftime('%Y-%m-%d')
-    
+
     # Read existing changelog
     content = File.read(changelog)
-    
+
     # Prepare new entry based on type
     new_entry = case type
                 when :patch
@@ -85,16 +85,17 @@ def update_changelog(version, type)
                 when :minor
                   "## [#{version}] - #{date}\n\n### Added\n- New features\n\n### Changed\n- Improvements\n\n"
                 when :major
-                  "## [#{version}] - #{date}\n\n### Breaking Changes\n- Breaking changes\n\n### Added\n- New features\n\n"
+                  "## [#{version}] - #{date}\n\n### Breaking Changes\n- Breaking changes\n\n" \
+                  "### Added\n- New features\n\n"
                 else
                   "## [#{version}] - #{date}\n\n### Changed\n- Updates\n\n"
                 end
-    
+
     # Insert after the header
     content.sub!(/^(# Changelog.*?\n\n)/m, "\\1#{new_entry}")
     File.write(changelog, content)
     puts "✅ Updated CHANGELOG.md manually for version #{version}"
-    puts "💡 Install git-cliff for automatic changelog generation: brew install git-cliff"
+    puts '💡 Install git-cliff for automatic changelog generation: brew install git-cliff'
   end
 end
 
@@ -110,11 +111,11 @@ end
 desc 'Generate CHANGELOG.md using git-cliff'
 task :changelog do
   if system('which git-cliff > /dev/null 2>&1')
-    puts "Generating CHANGELOG.md with git-cliff..."
+    puts 'Generating CHANGELOG.md with git-cliff...'
     system('git-cliff --output CHANGELOG.md')
-    puts "✅ CHANGELOG.md generated successfully"
+    puts '✅ CHANGELOG.md generated successfully'
   else
-    puts "❌ git-cliff not installed. Install with: brew install git-cliff"
+    puts '❌ git-cliff not installed. Install with: brew install git-cliff'
     exit 1
   end
 end
