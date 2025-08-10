@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "yaml"
 require "erb"
 require 'open-uri'
@@ -76,7 +78,7 @@ class Settingslogic < Hash
 
       def create_accessor_for(key)
         return unless key.to_s =~ /^\w+$/  # could have "some-setting:" which blows up eval
-        instance_eval "def #{key}; instance.send(:#{key}); end"
+        instance_eval "def #{key}; instance.send(:#{key}); end", __FILE__, __LINE__
       end
 
   end
@@ -100,7 +102,7 @@ class Settingslogic < Hash
       self.replace hash_or_file
     else
       file_contents = open(hash_or_file).read
-      hash = file_contents.empty? ? {} : YAML.load(ERB.new(file_contents).result).to_hash
+      hash = file_contents.empty? ? {} : parse_yaml_content(file_contents)
       if self.class.namespace
         hash = hash[self.class.namespace] or return missing_key("Missing setting '#{self.class.namespace}' in #{hash_or_file}")
       end
@@ -114,7 +116,7 @@ class Settingslogic < Hash
   # Otherwise, create_accessors! (called by new) will have created actual methods for each key.
   def method_missing(name, *args, &block)
     key = name.to_s
-    return missing_key("Missing setting '#{key}' in #{@section}") unless has_key? key
+    return missing_key("Missing setting '#{key}' in #{@section}") unless key? key
     value = fetch(key)
     create_accessor_for(key)
     value.is_a?(Hash) ? self.class.new(value, "'#{key}' section in #{@section}") : value
@@ -136,6 +138,12 @@ class Settingslogic < Hash
     Hash[self]
   end
 
+  # Prevents Array#flatten from trying to expand Settings objects
+  # This fixes RSpec issues when Settings objects are included in arrays
+  def to_ary
+    nil
+  end
+
   # This handles naming collisions with Sinatra/Vlad/Capistrano. Since these use a set()
   # helper that defines methods in Object, ANY method_missing ANYWHERE picks up the Vlad/Sinatra
   # settings!  So settings.deploy_to title actually calls Object.deploy_to (from set :deploy_to, "host"),
@@ -155,7 +163,7 @@ class Settingslogic < Hash
     self.class.class_eval <<-EndEval
       def #{key}
         return @#{key} if @#{key}
-        return missing_key("Missing setting '#{key}' in #{@section}") unless has_key? '#{key}'
+        return missing_key("Missing setting '#{key}' in #{@section}") unless key? '#{key}'
         value = fetch('#{key}')
         @#{key} = if value.is_a?(Hash)
           self.class.new(value, "'#{key}' section in #{@section}")
@@ -187,5 +195,28 @@ class Settingslogic < Hash
     return nil if self.class.suppress_errors
 
     raise MissingSetting, msg
+  end
+
+  private
+
+  # Parse YAML content with Psych 4 / Ruby 3.1+ compatibility
+  # Handles YAML aliases which are disabled by default in Psych 4
+  def parse_yaml_content(file_content)
+    erb_result = ERB.new(file_content).result
+    
+    if YAML.respond_to?(:unsafe_load)
+      # Ruby 3.1+ with Psych 4
+      YAML.unsafe_load(erb_result).to_hash
+    else
+      # Ruby 2.x/3.0 with Psych 3
+      YAML.load(erb_result).to_hash
+    end
+  rescue Psych::DisallowedClass => e
+    # Fallback for cases where unsafe_load isn't available but aliases are needed
+    if YAML.respond_to?(:safe_load)
+      YAML.safe_load(erb_result, aliases: true, permitted_classes: [Symbol]).to_hash
+    else
+      raise e
+    end
   end
 end

@@ -84,7 +84,7 @@ describe "Settingslogic" do
 
     Settings.language['erlang'] = {'paradigm' => 'functional'}
     Settings.language.erlang.paradigm.should == 'functional'
-    Settings.respond_to?('erlang').should be_false
+    Settings.respond_to?('erlang').should be false
 
     Settings.reload!
     Settings.language['erlang'].should be_nil

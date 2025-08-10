@@ -1,21 +1,37 @@
-# -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
+# frozen_string_literal: true
 
-Gem::Specification.new do |s|
-  s.name        = "settingslogic"
-  s.version     = "2.0.9"
-  s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Ben Johnson"]
-  s.email       = ["bjohnson@binarylogic.com"]
-  s.homepage    = "http://github.com/binarylogic/settingslogic"
-  s.summary     = %q{A simple and straightforward settings solution that uses an ERB enabled YAML file and a singleton design pattern.}
-  s.description = %q{A simple and straightforward settings solution that uses an ERB enabled YAML file and a singleton design pattern.}
+require_relative 'lib/settingslogic/version'
 
-  s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec'
+Gem::Specification.new do |spec|
+  spec.name        = "settingslogic"
+  spec.version     = Settingslogic::VERSION
+  spec.platform    = Gem::Platform::RUBY
+  spec.authors     = ["Ben Johnson", "MITRE Corporation"]
+  spec.email       = ["lippold@gmail.com"]
+  spec.homepage    = "https://github.com/mitre/settingslogic"
+  spec.summary     = "A simple settings solution using YAML and a singleton pattern"
+  spec.description = "A simple and straightforward settings solution that uses an ERB enabled YAML file and a singleton design pattern. This is a MITRE-maintained fork with Ruby 3.x and Rails 7.x compatibility."
+  spec.license     = "MIT"
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ["lib"]
+  spec.required_ruby_version = ">= 2.7.0"
+
+  spec.metadata = {
+    "homepage_uri"      => spec.homepage,
+    "source_code_uri"   => spec.homepage,
+    "changelog_uri"     => "#{spec.homepage}/blob/main/CHANGELOG.md",
+    "bug_tracker_uri"   => "#{spec.homepage}/issues",
+    "documentation_uri" => "https://www.rubydoc.info/gems/settingslogic"
+  }
+
+  # Dependencies
+  spec.add_development_dependency 'rake', '~> 13.0'
+  spec.add_development_dependency 'rspec', '~> 3.12'
+  spec.add_development_dependency 'rubocop', '~> 1.50'
+  spec.add_development_dependency 'rubocop-rspec', '~> 2.20'
+  spec.add_development_dependency 'simplecov', '~> 0.22'
+
+  # Files
+  spec.files         = Dir.glob("{lib,spec}/**/*") + %w[README.md LICENSE CHANGELOG.md]
+  spec.test_files    = spec.files.grep(%r{^spec/})
+  spec.require_paths = ["lib"]
 end
