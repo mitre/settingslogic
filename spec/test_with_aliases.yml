@@ -1,0 +1,15 @@
+defaults: &defaults
+  host: localhost
+  port: 3000
+  protocol: http
+
+development:
+  <<: *defaults
+  database: dev_db
+
+production:
+  <<: *defaults
+  host: prod.example.com
+  port: 443
+  protocol: https
+  database: prod_db
