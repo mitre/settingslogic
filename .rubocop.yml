@@ -1,0 +1,76 @@
+# RuboCop configuration for settingslogic gem
+# A simple settings solution using YAML and singleton pattern
+
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+  TargetRubyVersion: 2.7  # Minimum supported version
+  Exclude:
+    - 'vendor/**/*'
+    - '.bundle/**/*'
+    - 'node_modules/**/*'
+    - 'pkg/**/*'
+    - 'spec/fixtures/**/*'
+    - '*.gemspec'
+    - 'Gemfile'
+    - 'Rakefile'
+
+# Style preferences for this library
+Style/Documentation:
+  Enabled: false  # The code is self-documenting
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
+
+# Allow hash syntax from older Ruby versions for compatibility
+Style/HashSyntax:
+  EnforcedStyle: ruby19_no_mixed_keys
+
+# This is a small library, metrics can be relaxed
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/ClassLength:
+  Max: 200
+
+Metrics/AbcSize:
+  Max: 30
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
+Metrics/PerceivedComplexity:
+  Max: 15
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - '*.gemspec'
+
+# Layout preferences
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'spec/**/*'
+
+# Naming
+Naming/FileName:
+  Exclude:
+    - 'lib/settingslogic.rb'  # Main file uses non-standard naming
+
+# Security
+Security/Eval:
+  Exclude:
+    - 'lib/settingslogic.rb'  # We use eval safely with __FILE__ and __LINE__
+
+# Compatibility with older Ruby versions
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+# Specs use old should syntax
+RSpec:
+  Enabled: false

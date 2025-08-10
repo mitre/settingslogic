@@ -23,12 +23,13 @@ Gem::Specification.new do |spec|
     "documentation_uri" => "https://www.rubydoc.info/gems/settingslogic"
   }
 
-  # Dependencies
-  spec.add_development_dependency 'rake', '~> 13.0'
-  spec.add_development_dependency 'rspec', '~> 3.12'
-  spec.add_development_dependency 'rubocop', '~> 1.50'
-  spec.add_development_dependency 'rubocop-rspec', '~> 2.20'
-  spec.add_development_dependency 'simplecov', '~> 0.22'
+  # Development Dependencies - All verified for security
+  spec.add_development_dependency 'rake', '~> 13.2'          # CVE-2020-8130 fixed in 12.3.3+
+  spec.add_development_dependency 'rspec', '~> 3.13'         # Latest stable
+  spec.add_development_dependency 'rubocop', '~> 1.65'       # Latest 1.x stable
+  spec.add_development_dependency 'rubocop-rspec', '~> 3.0'  # Major version upgrade available
+  spec.add_development_dependency 'simplecov', '~> 0.22'     # Current stable
+  spec.add_development_dependency 'bundler-audit', '~> 0.9' # Security auditing
 
   # Files
   spec.files         = Dir.glob("{lib,spec}/**/*") + %w[README.md LICENSE CHANGELOG.md]

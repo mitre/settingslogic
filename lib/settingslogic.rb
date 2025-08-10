@@ -101,7 +101,7 @@ class Settingslogic < Hash
     when Hash
       self.replace hash_or_file
     else
-      file_contents = open(hash_or_file).read
+      file_contents = read_file(hash_or_file)
       hash = file_contents.empty? ? {} : parse_yaml_content(file_contents)
       if self.class.namespace
         hash = hash[self.class.namespace] or return missing_key("Missing setting '#{self.class.namespace}' in #{hash_or_file}")
@@ -176,19 +176,53 @@ class Settingslogic < Hash
     EndEval
   end
   
+  # Convert all keys to symbols recursively
   def symbolize_keys
-    
-    inject({}) do |memo, tuple|
-      
-      k = (tuple.first.to_sym rescue tuple.first) || tuple.first
-            
-      v = k.is_a?(Symbol) ? send(k) : tuple.last # make sure the value is accessed the same way Settings.foo.bar works
-      
-      memo[k] = v && v.respond_to?(:symbolize_keys) ? v.symbolize_keys : v #recurse for nested hashes
-      
-      memo
+    each_with_object({}) do |(key, value), memo|
+      k = key.to_sym rescue key
+      # Access the value properly through the accessor method
+      v = respond_to?(key) ? send(key) : value
+      # Recursively symbolize nested hashes
+      memo[k] = if v.is_a?(self.class)
+        v.symbolize_keys
+      elsif v.respond_to?(:symbolize_keys)
+        v.symbolize_keys
+      else
+        v
+      end
     end
-    
+  end
+
+  # Convert all keys to strings recursively (Rails compatibility)
+  def stringify_keys
+    each_with_object({}) do |(key, value), memo|
+      k = key.to_s
+      v = send(key) rescue value
+      memo[k] = v.respond_to?(:stringify_keys) ? v.stringify_keys : v
+    end
+  end
+
+  # Deep merge settings (useful for overrides)
+  def deep_merge(other_hash)
+    self.class.new(to_hash.deep_merge(other_hash))
+  end
+
+  # Deep merge in place
+  def deep_merge!(other_hash)
+    replace(to_hash.deep_merge(other_hash))
+  end
+
+  private
+
+  # Helper for deep merging
+  def deep_merge_hash(hash, other_hash)
+    hash.merge(other_hash) do |key, old_val, new_val|
+      if old_val.is_a?(Hash) && new_val.is_a?(Hash)
+        deep_merge_hash(old_val, new_val)
+      else
+        new_val
+      end
+    end
   end
   
   def missing_key(msg)
@@ -197,26 +231,48 @@ class Settingslogic < Hash
     raise MissingSetting, msg
   end
 
-  private
-
   # Parse YAML content with Psych 4 / Ruby 3.1+ compatibility
   # Handles YAML aliases which are disabled by default in Psych 4
   def parse_yaml_content(file_content)
     erb_result = ERB.new(file_content).result
     
     if YAML.respond_to?(:unsafe_load)
-      # Ruby 3.1+ with Psych 4
+      # Ruby 3.1+ with Psych 4 - fastest for trusted config files
       YAML.unsafe_load(erb_result).to_hash
+    elsif YAML.respond_to?(:safe_load)
+      # Ruby 3.0+ with safe_load supporting aliases option
+      begin
+        YAML.safe_load(erb_result, aliases: true, permitted_classes: [Symbol, Date, Time]).to_hash
+      rescue ArgumentError
+        # Older versions without aliases parameter
+        YAML.load(erb_result).to_hash
+      end
     else
-      # Ruby 2.x/3.0 with Psych 3
+      # Ruby 2.x fallback
       YAML.load(erb_result).to_hash
     end
-  rescue Psych::DisallowedClass => e
-    # Fallback for cases where unsafe_load isn't available but aliases are needed
-    if YAML.respond_to?(:safe_load)
-      YAML.safe_load(erb_result, aliases: true, permitted_classes: [Symbol]).to_hash
+  rescue Psych::DisallowedClass, Psych::BadAlias => e
+    # Additional fallback for edge cases
+    if defined?(Psych::VERSION) && Psych::VERSION >= '4.0.0'
+      raise MissingSetting, "YAML file contains aliases but they are disabled in Psych 4. Please update your YAML file or use unsafe_load."
     else
       raise e
+    end
+  end
+
+  # Read file contents handling both local files and URIs
+  # Avoids Ruby 3.0+ deprecation warnings for open-uri
+  def read_file(source)
+    if source.to_s =~ /\A(https?:\/\/|ftp:\/\/)/
+      # For URLs, use URI.open (Ruby 2.5+) or open-uri
+      if defined?(URI) && URI.respond_to?(:open)
+        URI.open(source).read
+      else
+        open(source).read
+      end
+    else
+      # For local files, use File.read which is more efficient
+      File.read(source)
     end
   end
 end
