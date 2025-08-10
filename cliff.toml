@@ -19,10 +19,19 @@ body = """
 {% else %}\
     ## [Unreleased]
 {% endif %}\
+{% if version == "3.0.0" %}
+### ⚠️ BREAKING CHANGES
+
+- Minimum Ruby version is now 2.7
+- Removed open-uri dependency (use Net::HTTP instead)
+
+{% endif %}\
 {% for group, commits in commits | group_by(attribute="group") %}
     ### {{ group | striptags | trim | upper_first }}
     {% for commit in commits %}
-        - {% if commit.scope %}**{{ commit.scope }}**: {% endif %}{{ commit.message | upper_first }}\
+        - {% if commit.scope %}**{{ commit.scope }}**: {% endif %}\
+{{ commit.message | upper_first }}\
+{% if commit.breaking %}{% endif %}\
     {% endfor %}
 {% endfor %}\n
 """
@@ -60,6 +69,7 @@ commit_parsers = [
     { message = "^chore\\(pull\\)", skip = true },
     { message = "^chore|^ci", group = "Miscellaneous Tasks" },
     { body = ".*security", group = "Security" },
+    { message = ".*security", group = "Security" },
     { message = "^revert", group = "Revert" },
 ]
 # protect breaking changes from being skipped due to matching a skipping commit_parser
