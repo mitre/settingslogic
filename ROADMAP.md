@@ -9,7 +9,7 @@
 - ✅ 94%+ test coverage with reorganized specs
 
 ## Version 3.x (Maintenance)
-- Rename master branch to main (v3.0.1 or v3.1)
+- ✅ Rename master branch to main (completed in v3.0.1)
 - Test gem autopublishing workflow
 - Bug fixes as needed
 - Maintain compatibility with new Ruby/Rails releases

@@ -21,7 +21,7 @@ Add this to your Gemfile:
 
 ```ruby
 # Use the MITRE fork for Ruby 3.x compatibility
-gem 'settingslogic', github: 'mitre/settingslogic', branch: 'master'
+gem 'settingslogic', github: 'mitre/settingslogic', branch: 'main'
 ```
 
 Or if we publish to RubyGems:

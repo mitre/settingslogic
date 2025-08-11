@@ -40,7 +40,7 @@ bundle exec rubocop
 ## 📝 Making Changes
 
 1. **Fork the repository** on GitHub
-2. **Create a feature branch** from `master`
+2. **Create a feature branch** from `main`
    ```bash
    git checkout -b feature/my-new-feature
    ```
