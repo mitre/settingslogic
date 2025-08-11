@@ -240,7 +240,9 @@ task 'release:quick:patch' do
   if git_status_clean?
     puts 'No changes to commit'
   else
-    version = current_version
+    # Reload version from file to get the updated version
+    version_content = File.read(version_file)
+    version = version_content.match(/VERSION = ['"](.+)['"]/)[1]
     sh %(git commit -m "Bump version to #{version}\n\nAuthored by: Aaron Lippold<lippold@gmail.com>")
     sh 'git push origin main'
   end
@@ -255,7 +257,9 @@ task 'release:quick:minor' do
   if git_status_clean?
     puts 'No changes to commit'
   else
-    version = current_version
+    # Reload version from file to get the updated version
+    version_content = File.read(version_file)
+    version = version_content.match(/VERSION = ['"](.+)['"]/)[1]
     sh %(git commit -m "Bump version to #{version}\n\nAuthored by: Aaron Lippold<lippold@gmail.com>")
     sh 'git push origin main'
   end
@@ -270,7 +274,9 @@ task 'release:quick:major' do
   if git_status_clean?
     puts 'No changes to commit'
   else
-    version = current_version
+    # Reload version from file to get the updated version
+    version_content = File.read(version_file)
+    version = version_content.match(/VERSION = ['"](.+)['"]/)[1]
     sh %(git commit -m "Bump version to #{version}\n\nAuthored by: Aaron Lippold<lippold@gmail.com>")
     sh 'git push origin main'
   end
