@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   # Runtime dependencies
   # BigDecimal is required for YAML safe_load permitted classes
   # In Ruby 3.4+, bigdecimal is no longer bundled by default
-  spec.add_dependency 'bigdecimal'
+  spec.add_dependency 'bigdecimal', '~> 3.1'
 
   spec.metadata = {
     'homepage_uri' => spec.homepage,
