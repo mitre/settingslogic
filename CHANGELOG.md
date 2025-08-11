@@ -5,63 +5,127 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.0] - 2025-01-11
+## [3.0.1] - 2025-08-11
 
-### 🔒 Security (BREAKING CHANGES)
+### Added
 
-- **Critical**: Replace `YAML.unsafe_load` with `YAML.safe_load` to prevent arbitrary code execution
-- Default permitted YAML classes: `Symbol, Date, Time, DateTime, BigDecimal`
-- Replace vulnerable `open-uri` with `Net::HTTP` for URL loading
-- Add protocol validation to block dangerous URI schemes (file://, ftp://, etc.)
+- Add MkDocs Material documentation site
 
-### ✨ Features
+### Documentation
 
-- Add Ruby 3.x compatibility (3.0, 3.1, 3.2, 3.3, 3.4)
-- Add Rails 7.x and 8.x compatibility
-- Add Psych 4 support with YAML alias handling
-- Add configurable permitted classes via `Settingslogic.yaml_permitted_classes`
-- Add migration path with deprecated `Settingslogic.use_yaml_unsafe_load` flag
-- Add helpful error messages with migration instructions
+- Prepare for master to main branch rename
 
-### 🐛 Fixes
+### Fixed
 
-- Fix RSpec Array#flatten issues with `to_ary` method
-- Fix deprecated `has_key?` usage (now `key?`)
-- Fix eval security with proper `__FILE__` and `__LINE__` tracking
-- Fix Ruby 3.4 compatibility with explicit bigdecimal dependency
-- Fix CI issues with Ruby 2.7 + Rails 6.1 zeitwerk conflict
+- Update documentation and license references
+- Update Gemfile.lock with correct gem name
+- Update rake task to use single quotes for version string
 
-### 📦 Infrastructure
+### Miscellaneous Tasks
 
-- Add comprehensive test suite (94.63% coverage)
-- Add RuboCop linting with rubocop-rspec and rubocop-performance
-- Add GitHub Actions CI for all Ruby/Rails combinations
-- Add automated release tooling with version management
-- Add security testing suite (19 security-specific tests)
+- Finalize branch rename cleanup
+- Add GitHub Pages documentation deployment workflow
 
-### 📚 Documentation
+## [3.0.0] - 2025-08-11
 
-- Add comprehensive README with migration guide
-- Add SECURITY.md with vulnerability reporting process
-- Add ROADMAP.md for future development plans
-- Add CONTRIBUTING.md for contribution guidelines
-- Update all documentation for v3.0.0
+### Added
 
-### ⚠️ Breaking Changes
+- Add Ruby 3.x and Psych 4 compatibility
+- Add configurability and migration path for YAML security fix
 
-- YAML files can no longer instantiate arbitrary Ruby objects by default
-- To allow custom classes: `Settingslogic.yaml_permitted_classes += [MyClass]`
-- Temporary opt-out available: `Settingslogic.use_yaml_unsafe_load = true` (deprecated)
+### Documentation
 
-### 📝 Notes
+- Add comprehensive documentation for v3.0.0 release
+- Finalize v3.0.0 release preparation
 
-This is a major security release addressing CVE-2022-32224-like vulnerabilities. All users should upgrade and review their YAML files for compatibility with safe_load restrictions.
+### Fixed
 
-## [2.0.9] - 2012-10-19
+- Resolve CI test failures
+- Critical security vulnerability - replace YAML.unsafe_load with safe_load
+- Specify bounded bigdecimal dependency
 
-Last release of the original gem by Ben Johnson (binarylogic).
+### Miscellaneous Tasks
 
----
+- Add development tooling and release automation
+- Update dependencies and gemspec for v3.0.0
+- Update gitignore for session and archive files
+- Update changelog generation configuration
+- Update Gemfile.lock for bigdecimal dependency
 
-Maintained by MITRE Corporation
-Primary maintainer: Aaron Lippold <lippold@gmail.com>
+### Security
+
+- Add Ruby 3.x and Psych 4 compatibility
+
+- Add parse_yaml_content method to handle Psych 4's disabled aliases
+- Use YAML.unsafe_load for Ruby 3.1+ with fallback to YAML.load
+- Add to_ary method to fix RSpec Array#flatten issues
+- Update deprecated has_key? to key?
+- Add frozen string literal pragma
+- Improve eval security with file/line tracking
+- Fix RSpec be_false deprecation in tests
+- Bump version to 3.0.0
+
+Authored by: Aaron Lippold <lippold@gmail.com>
+- Comprehensive Ruby 3.x compatibility and security update
+
+- Add full Ruby 3.x support (3.0, 3.1, 3.2, 3.3, 3.4)
+- Fix Psych 4 YAML alias compatibility for Ruby 3.1+
+- Update all dependencies to latest secure versions
+- Add bundler-audit for security monitoring
+- Implement stringify_keys for Rails compatibility
+- Add to_ary for RSpec compatibility
+- Improve symbolize_keys for nested hashes
+- Fix deprecated methods (has_key? → key?)
+- Add frozen string literals throughout
+- Improve eval security with file/line tracking
+- Add comprehensive GitHub Actions CI
+- Add MITRE standard project files
+- Add security documentation and policies
+- Acknowledge contributions from community forks
+
+All tests passing, no known CVEs in dependencies.
+
+Authored by: Aaron Lippold <lippold@gmail.com>
+
+### Styling
+
+- Fix RuboCop offenses in Rakefile
+
+### Testing
+
+- Reorganize tests and improve coverage to 92%
+
+## [2.0.8] - 2012-01-09
+
+### Fixed
+
+- Fix jewler
+- Fix conflicts
+
+## [2.0.7] - 2012-01-06
+
+### Fixed
+
+- Fixes settingslogic #11
+
+## [2.0.6] - 2010-02-13
+
+## [2.0.5] - 2010-02-01
+
+## [2.0.4] - 2010-01-29
+
+## [2.0.3] - 2009-09-02
+
+### Refactoring
+
+- NodeDefinder module was introduced.
+
+## [2.0.2] - 2009-08-22
+
+## [2.0.1] - 2009-08-22
+
+## [2.0.0] - 2009-08-22
+
+## [1.0.4] - 2009-06-28
+
+<!-- generated by git-cliff -->
