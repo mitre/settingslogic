@@ -25,6 +25,21 @@ class Settingslogic < Hash
       @yaml_permitted_classes = classes
     end
 
+    # DEPRECATED: Temporarily allow unsafe YAML loading for backwards compatibility
+    # This option will be removed in v4.0.0
+    # WARNING: This enables arbitrary code execution vulnerabilities!
+    def use_yaml_unsafe_load=(value)
+      if value
+        warn "[DEPRECATION] Settingslogic.use_yaml_unsafe_load is deprecated and will be removed in v4.0.0. " \
+             "Please migrate to using Settingslogic.yaml_permitted_classes instead."
+      end
+      @use_yaml_unsafe_load = value
+    end
+
+    def use_yaml_unsafe_load
+      @use_yaml_unsafe_load ||= false
+    end
+
     # Enables Settings.get('nested.key.name') for dynamic access
     def get(key)
       parts = key.split('.')
@@ -262,29 +277,48 @@ class Settingslogic < Hash
   def parse_yaml_content(file_content)
     erb_result = ERB.new(file_content).result
 
-    # Use safe_load for ALL Ruby versions to prevent arbitrary object instantiation
-    # Allow aliases for config files and use configured permitted classes
-    permitted_classes = self.class.yaml_permitted_classes
-
-    begin
-      if YAML.respond_to?(:safe_load)
-        # Try with modern safe_load signature (Ruby 2.6+)
-        YAML.safe_load(erb_result, permitted_classes: permitted_classes, aliases: true).to_hash
+    # Check if unsafe loading is enabled (deprecated)
+    if self.class.use_yaml_unsafe_load
+      # Use the old unsafe behavior (security risk!)
+      if YAML.respond_to?(:unsafe_load)
+        # unsafe_load doesn't take aliases parameter, it allows them by default
+        YAML.unsafe_load(erb_result).to_hash
       else
-        # Fallback for older Ruby versions
-        YAML.safe_load(erb_result, [Symbol, Date, Time, DateTime, BigDecimal], [], true).to_hash
+        # Fallback to regular load for older Ruby versions
+        YAML.load(erb_result).to_hash
       end
-    rescue ArgumentError => e
-      # Handle older safe_load signature (Ruby 2.5 and earlier)
-      raise e unless e.message.include?('unknown keyword') || e.message.include?('wrong number of arguments')
+    else
+      # Use safe_load for security (recommended)
+      permitted_classes = self.class.yaml_permitted_classes
 
-      # Old signature: safe_load(yaml, whitelist_classes, whitelist_symbols, aliases)
-      YAML.safe_load(erb_result, permitted_classes, [], true).to_hash
+      begin
+        if YAML.respond_to?(:safe_load)
+          # Try with modern safe_load signature (Ruby 2.6+)
+          YAML.safe_load(erb_result, permitted_classes: permitted_classes, aliases: true).to_hash
+        else
+          # Fallback for older Ruby versions
+          YAML.safe_load(erb_result, permitted_classes, [], true).to_hash
+        end
+      rescue ArgumentError => e
+        # Handle older safe_load signature (Ruby 2.5 and earlier)
+        raise e unless e.message.include?('unknown keyword') || e.message.include?('wrong number of arguments')
+
+        # Old signature: safe_load(yaml, whitelist_classes, whitelist_symbols, aliases)
+        YAML.safe_load(erb_result, permitted_classes, [], true).to_hash
+      end
     end
   rescue Psych::DisallowedClass => e
-    # Provide helpful error message for disallowed classes
-    raise MissingSetting, "YAML file contains disallowed class: " \
-                          "#{e.message}. Only Symbol, Date, Time, DateTime, and BigDecimal are permitted."
+    # Extract class name from error message
+    class_name = e.message[/Tried to load unspecified class: (.+)/, 1] || e.message
+
+    # Provide helpful error message with migration instructions
+    raise MissingSetting, "YAML file contains disallowed class: #{class_name}\n\n" \
+                          "To fix this, you have two options:\n" \
+                          "1. Add the class to permitted classes:\n" \
+                          "   Settingslogic.yaml_permitted_classes += [#{class_name}]\n" \
+                          "2. (NOT RECOMMENDED) Temporarily use unsafe loading:\n" \
+                          "   Settingslogic.use_yaml_unsafe_load = true\n\n" \
+                          "Current permitted classes: #{self.class.yaml_permitted_classes.inspect}"
   rescue Psych::BadAlias => e
     # This shouldn't happen with aliases: true, but handle it just in case
     raise MissingSetting, "YAML file contains aliases but they could not be processed. " \

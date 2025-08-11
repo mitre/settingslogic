@@ -44,8 +44,9 @@ jobs:
       matrix:
         include:
           # Test with various Rails versions
-          - ruby-version: '2.7'
-            rails-version: '6.1'
+          # NOTE: Ruby 2.7 + Rails 6.1 excluded due to zeitwerk dependency conflict
+          #       (zeitwerk > 2.6.18 requires Ruby >= 3.2, but Rails 6.1 requires zeitwerk ~> 2.3)
+          #       This is a Rails/zeitwerk issue, not a settingslogic issue
           - ruby-version: '3.0'
             rails-version: '7.0'
           - ruby-version: '3.1'

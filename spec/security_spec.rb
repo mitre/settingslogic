@@ -49,6 +49,51 @@ describe 'Settingslogic Security' do
       Settingslogic.yaml_permitted_classes = original_classes
     end
 
+    it 'provides helpful error message with migration instructions' do
+      yaml_with_object = <<~YAML
+        test: !ruby/object:File {}
+      YAML
+
+      settings = Settingslogic.new({})
+
+      expect do
+        settings.send(:parse_yaml_content, yaml_with_object)
+      end.to raise_error(Settingslogic::MissingSetting) do |error|
+        expect(error.message).to include('To fix this, you have two options:')
+        expect(error.message).to include('Settingslogic.yaml_permitted_classes += [')
+        expect(error.message).to include('Settingslogic.use_yaml_unsafe_load = true')
+        expect(error.message).to include('Current permitted classes:')
+      end
+    end
+
+    it 'allows unsafe loading when explicitly enabled (deprecated)' do
+      # Enable unsafe loading temporarily
+      original_unsafe = Settingslogic.use_yaml_unsafe_load
+      
+      # Capture deprecation warning
+      expect do
+        Settingslogic.use_yaml_unsafe_load = true
+      end.to output(/DEPRECATION/).to_stderr
+
+      yaml_with_object = <<~YAML
+        test: !ruby/object:File {}
+      YAML
+
+      settings = Settingslogic.new({})
+      
+      # Should not raise error with unsafe_load enabled
+      if YAML.respond_to?(:unsafe_load)
+        result = settings.send(:parse_yaml_content, yaml_with_object)
+        expect(result['test']).to be_a(File)
+      else
+        # On older Ruby, just ensure it doesn't raise
+        expect { settings.send(:parse_yaml_content, yaml_with_object) }.not_to raise_error
+      end
+
+      # Restore original setting
+      Settingslogic.use_yaml_unsafe_load = original_unsafe
+    end
+
     it 'safely handles YAML bombs (billion laughs attack)' do
       yaml_bomb = <<~YAML
         a: &a ["lol","lol","lol","lol","lol","lol","lol","lol","lol"]

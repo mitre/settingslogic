@@ -115,13 +115,17 @@ describe 'Settingslogic Error Handling' do
     it 'handles Psych::DisallowedClass gracefully' do
       settings = Settingslogic.new({})
 
-      # This would trigger in environments where Psych 4 is strict about classes
-      yaml_with_object = 'test: !ruby/object:Time {}'
+      # File is NOT in our permitted classes, so this should be rejected
+      yaml_with_object = 'test: !ruby/object:File {}'
 
-      # The parse_yaml_content method should handle this
+      # The parse_yaml_content method should handle this by converting to MissingSetting
+      # We expect it to raise MissingSetting with helpful error message, not raw Psych::DisallowedClass
       expect do
         settings.send(:parse_yaml_content, yaml_with_object)
-      end.not_to raise_error(Psych::DisallowedClass)
+      end.to raise_error(Settingslogic::MissingSetting) do |error|
+        expect(error.message).to include('disallowed class')
+        expect(error.message).to include('To fix this, you have two options:')
+      end
     end
 
     it 'provides helpful error for YAML aliases when disabled' do
