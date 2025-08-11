@@ -55,7 +55,7 @@ end
 
 def update_version(new_version)
   content = File.read(version_file)
-  content.gsub!(/VERSION = ["'][\d.]+["']/, "VERSION = \"#{new_version}\"")
+  content.gsub!(/VERSION = ["'][\d.]+["']/, "VERSION = '#{new_version}'")
   File.write(version_file, content)
   puts "Updated version to #{new_version}"
 end
