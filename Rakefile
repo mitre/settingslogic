@@ -9,7 +9,7 @@ RSpec::Core::RakeTask.new
 begin
   require 'rubocop/rake_task'
   RuboCop::RakeTask.new
-  
+
   desc 'Run RuboCop with autocorrect'
   task :rubocop_autocorrect do
     sh 'bundle exec rubocop -a'
@@ -19,7 +19,7 @@ rescue LoadError
   task :rubocop do
     puts 'RuboCop not available. Install it with: gem install rubocop'
   end
-  
+
   desc 'Run RuboCop with autocorrect'
   task :rubocop_autocorrect do
     puts 'RuboCop not available. Install it with: gem install rubocop'
@@ -217,7 +217,7 @@ def prepare_release_commit
 
   # Stage changes (including any RuboCop fixes)
   sh "git add #{version_file} CHANGELOG.md Gemfile.lock"
-  sh 'git add -u'  # Add any modified files (from RuboCop autocorrect)
+  sh 'git add -u' # Add any modified files (from RuboCop autocorrect)
 
   # Show what will be committed
   puts "\n📝 Changes to be committed:"
