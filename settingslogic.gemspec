@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
     'source_code_uri' => spec.homepage,
     'changelog_uri' => "#{spec.homepage}/blob/main/CHANGELOG.md",
     'bug_tracker_uri' => "#{spec.homepage}/issues",
-    'documentation_uri' => 'https://www.rubydoc.info/gems/mitre-settingslogic',
+    'documentation_uri' => 'https://mitre.github.io/settingslogic/',
     'rubygems_mfa_required' => 'true'
   }
 
