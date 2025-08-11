@@ -2,6 +2,7 @@
 
 require File.expand_path("#{File.dirname(__FILE__)}/spec_helper")
 require 'tempfile'
+require 'uri'
 
 describe 'Settingslogic Security' do
   describe 'YAML parsing security' do
@@ -14,12 +15,11 @@ describe 'Settingslogic Security' do
 
       settings = Settingslogic.new({})
 
-      # Should either raise an error or safely ignore the object
+      # This should raise an error to prevent arbitrary object instantiation
+      # This is the SECURE behavior we want
       expect do
-        result = settings.send(:parse_yaml_content, yaml_with_object)
-        # If it doesn't raise, the object should not be instantiated
-        expect(result['test']).not_to be_a(File)
-      end.not_to raise_error(StandardError)
+        settings.send(:parse_yaml_content, yaml_with_object)
+      end.to raise_error(Psych::DisallowedClass)
     end
 
     it 'safely handles YAML bombs (billion laughs attack)' do
