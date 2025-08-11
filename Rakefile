@@ -189,7 +189,9 @@ namespace :release do
 
     abort 'ERROR: Working directory not clean. Commit changes first.' unless git_status_clean?
 
-    version = current_version
+    # Reload version from file to avoid caching issues
+    version_content = File.read(version_file)
+    version = version_content.match(/VERSION = ['"](.+)['"]/)[1]
     tag = "v#{version}"
 
     puts "\n📦 Creating release tag #{tag}..."
