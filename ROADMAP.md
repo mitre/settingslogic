@@ -21,10 +21,18 @@
 - Remove deprecated `use_yaml_unsafe_load` flag
 - Minimum Ruby version: 3.0+ (or higher based on adoption)
 
+### Development Improvements
+- Integrate `bump` gem for simplified version management
+  - Replace custom Rakefile version bumping with industry-standard tool
+  - Automatic handling of VERSION file, gemspec, and Gemfile.lock
+  - Simplify release process with `bump patch --tag --commit`
+  - Reference: https://github.com/gregorym/bump
+
 ### Goals
 - Simplify codebase by removing legacy compatibility code
 - Maintain as a simple, focused settings gem
 - Ensure compatibility with Ruby 3.4+ for the long term
+- Streamline development workflow with standard tools
 
 ## Maintenance Philosophy
 This is a MITRE-maintained fork created specifically for Vulcan and other MITRE projects. We recognize that many in the Ruby community are moving to other configuration solutions, but settingslogic remains valuable for existing projects.
