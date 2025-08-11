@@ -215,8 +215,9 @@ def prepare_release_commit
   # Check git status
   puts 'WARNING: Not on main branch' unless on_main_branch?
 
-  # Stage changes
-  sh "git add #{version_file} CHANGELOG.md"
+  # Stage changes (including any RuboCop fixes)
+  sh "git add #{version_file} CHANGELOG.md Gemfile.lock"
+  sh 'git add -u'  # Add any modified files (from RuboCop autocorrect)
 
   # Show what will be committed
   puts "\n📝 Changes to be committed:"

@@ -27,11 +27,14 @@ bundle exec rake release:quick:major
 
 These commands will:
 1. Bump the version
-2. Update CHANGELOG.md
-3. Run tests
-4. Commit changes
-5. Create and push a git tag
-6. Trigger automated gem publication
+2. Update CHANGELOG.md (via git-cliff if available)
+3. Update Gemfile.lock 
+4. Run RuboCop with autocorrect
+5. Run tests, linting, and security audit
+6. Stage all changes for commit
+7. Show you what will be committed
+8. After you commit and push, create and push a git tag
+9. Trigger automated gem publication
 
 ## Manual Release Process
 
