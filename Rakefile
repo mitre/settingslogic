@@ -58,6 +58,10 @@ def update_version(new_version)
   content.gsub!(/VERSION = ["'][\d.]+["']/, "VERSION = '#{new_version}'")
   File.write(version_file, content)
   puts "Updated version to #{new_version}"
+  
+  # Update Gemfile.lock to match new version
+  puts "Updating Gemfile.lock..."
+  system('bundle install')
 end
 
 def update_changelog(version, type)
