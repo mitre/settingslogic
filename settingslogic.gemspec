@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   # Runtime dependencies
   # BigDecimal is required for YAML safe_load permitted classes
   # In Ruby 3.4+, bigdecimal is no longer bundled by default
-  spec.add_runtime_dependency 'bigdecimal'
+  spec.add_dependency 'bigdecimal'
 
   spec.metadata = {
     'homepage_uri' => spec.homepage,
@@ -41,6 +41,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov', '~> 0.22' # Current stable
 
   # Files
-  spec.files         = Dir.glob('{lib,spec}/**/*') + ['README.md', 'LICENSE', 'CHANGELOG.md']
+  spec.files         = Dir.glob('lib/**/*') + ['README.md', 'LICENSE.md', 'CHANGELOG.md',
+                                               'ROADMAP.md', 'SECURITY.md', 'CONTRIBUTING.md']
   spec.require_paths = ['lib']
 end

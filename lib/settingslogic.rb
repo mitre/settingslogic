@@ -21,17 +21,15 @@ class Settingslogic < Hash
       @yaml_permitted_classes ||= [Symbol, Date, Time, DateTime, BigDecimal]
     end
 
-    def yaml_permitted_classes=(classes)
-      @yaml_permitted_classes = classes
-    end
+    attr_writer :yaml_permitted_classes
 
     # DEPRECATED: Temporarily allow unsafe YAML loading for backwards compatibility
     # This option will be removed in v4.0.0
     # WARNING: This enables arbitrary code execution vulnerabilities!
     def use_yaml_unsafe_load=(value)
       if value
-        warn "[DEPRECATION] Settingslogic.use_yaml_unsafe_load is deprecated and will be removed in v4.0.0. " \
-             "Please migrate to using Settingslogic.yaml_permitted_classes instead."
+        warn '[DEPRECATION] Settingslogic.use_yaml_unsafe_load is deprecated and will be removed in v4.0.0. ' \
+             'Please migrate to using Settingslogic.yaml_permitted_classes instead.'
       end
       @use_yaml_unsafe_load = value
     end
@@ -285,7 +283,7 @@ class Settingslogic < Hash
         YAML.unsafe_load(erb_result).to_hash
       else
         # Fallback to regular load for older Ruby versions
-        YAML.load(erb_result).to_hash
+        YAML.load(erb_result).to_hash # rubocop:disable Security/YAMLLoad
       end
     else
       # Use safe_load for security (recommended)
@@ -314,10 +312,10 @@ class Settingslogic < Hash
     # Provide helpful error message with migration instructions
     raise MissingSetting, "YAML file contains disallowed class: #{class_name}\n\n" \
                           "To fix this, you have two options:\n" \
-                          "1. Add the class to permitted classes:\n" \
-                          "   Settingslogic.yaml_permitted_classes += [#{class_name}]\n" \
-                          "2. (NOT RECOMMENDED) Temporarily use unsafe loading:\n" \
-                          "   Settingslogic.use_yaml_unsafe_load = true\n\n" \
+                          "1. Add the class to permitted classes:\n   " \
+                          "Settingslogic.yaml_permitted_classes += [#{class_name}]\n" \
+                          "2. (NOT RECOMMENDED) Temporarily use unsafe loading:\n   " \
+                          "Settingslogic.use_yaml_unsafe_load = true\n\n" \
                           "Current permitted classes: #{self.class.yaml_permitted_classes.inspect}"
   rescue Psych::BadAlias => e
     # This shouldn't happen with aliases: true, but handle it just in case

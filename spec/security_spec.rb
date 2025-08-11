@@ -25,6 +25,7 @@ describe 'Settingslogic Security' do
       # Define a custom class for testing
       class CustomTestClass
         attr_accessor :value
+
         def initialize(value = nil)
           @value = value
         end
@@ -69,7 +70,7 @@ describe 'Settingslogic Security' do
     it 'allows unsafe loading when explicitly enabled (deprecated)' do
       # Enable unsafe loading temporarily
       original_unsafe = Settingslogic.use_yaml_unsafe_load
-      
+
       # Capture deprecation warning
       expect do
         Settingslogic.use_yaml_unsafe_load = true
@@ -80,7 +81,7 @@ describe 'Settingslogic Security' do
       YAML
 
       settings = Settingslogic.new({})
-      
+
       # Should not raise error with unsafe_load enabled
       if YAML.respond_to?(:unsafe_load)
         result = settings.send(:parse_yaml_content, yaml_with_object)

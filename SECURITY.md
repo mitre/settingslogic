@@ -32,14 +32,16 @@ When reporting security issues, please provide:
 
 ## Security Considerations
 
-### YAML Loading
+### YAML Loading (v3.0.0+)
 
-This gem uses YAML for configuration files. By default:
+This gem uses YAML for configuration files with secure defaults:
 
-- **Ruby 3.1+**: Uses `YAML.unsafe_load` for compatibility with aliases
-- **Ruby 2.7-3.0**: Uses `YAML.load` with appropriate safeguards
+- **Default**: Uses `YAML.safe_load` to prevent arbitrary code execution
+- **Permitted classes**: `Symbol, Date, Time, DateTime, BigDecimal`
+- **Customizable**: Add your own classes via `Settingslogic.yaml_permitted_classes`
+- **YAML aliases**: Fully supported with `aliases: true` parameter
 
-**⚠️ Important**: Only load YAML files from trusted sources. The configuration files should be:
+**⚠️ Important**: Configuration files should be:
 - Stored in secure locations
 - Not user-uploadable
 - Protected with appropriate file permissions
@@ -79,9 +81,10 @@ For production environments, always use local files with proper permissions.
 ## Security Enhancements in v3.0.0
 
 ### Critical Security Fixes
+- **YAML deserialization security**: Replaced `YAML.unsafe_load` with `YAML.safe_load` to prevent arbitrary object instantiation (addresses CVE-2022-32224 pattern)
 - **Removed open-uri vulnerability**: Replaced `open-uri` with `Net::HTTP` to prevent SSRF attacks
 - **Protocol validation**: Explicitly blocks dangerous protocols (file://, ftp://, gopher://, etc.)
-- **Safe YAML loading**: Uses `YAML.safe_load` with controlled permitted classes (Symbol, Date, Time)
+- **Safe YAML loading**: Default permitted classes: Symbol, Date, Time, DateTime, BigDecimal
 - **Input sanitization**: Dynamic method names validated with `/^\w+$/` to prevent code injection
 
 ### Security Features
@@ -102,7 +105,7 @@ For production environments, always use local files with proper permissions.
 - All known security issues have been addressed
 - Regular security audits via bundler-audit
 - Active maintenance by MITRE SAF team
-- Comprehensive security test coverage (92.42%)
+- Comprehensive security test coverage (94.63%)
 
 ## Disclosure Policy
 

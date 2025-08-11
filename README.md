@@ -158,10 +158,16 @@ Tested and working with:
 
 ## 🔒 Security
 
-- YAML loading uses `unsafe_load` for config files (faster, supports all YAML features)
-- Falls back to `safe_load` with permitted classes when needed
-- Local file access uses `File.read` instead of deprecated `open-uri` patterns
+### YAML Safe Loading (v3.0.0+)
+- **Default behavior**: Uses `YAML.safe_load` to prevent arbitrary code execution
+- **Permitted classes**: `Symbol, Date, Time, DateTime, BigDecimal`
+- **Custom classes**: Add via `Settingslogic.yaml_permitted_classes += [MyClass]`
+- **Migration path**: Temporary opt-out with `Settingslogic.use_yaml_unsafe_load = true` (deprecated, will be removed in v4.0.0)
+
+### Other Security Features
+- URL loading uses `Net::HTTP` instead of vulnerable `open-uri`
 - All eval usage includes proper `__FILE__` and `__LINE__` tracking
+- No arbitrary code execution vulnerabilities in default configuration
 
 ## 🤝 Contributing
 
