@@ -3,7 +3,7 @@
 require_relative 'lib/settingslogic/version'
 
 Gem::Specification.new do |spec|
-  spec.name        = 'settingslogic'
+  spec.name        = 'mitre-settingslogic'
   spec.version     = Settingslogic::VERSION
   spec.platform    = Gem::Platform::RUBY
   spec.authors     = ['Ben Johnson', 'MITRE SAF Team']
@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description = 'A simple and straightforward settings solution that uses an ERB enabled YAML file and ' \
                      'a singleton design pattern. This is a MITRE-maintained fork with Ruby 3.x and ' \
                      'Rails 7.x compatibility.'
-  spec.license     = 'MIT'
+  spec.license     = 'Apache-2.0'
 
   spec.required_ruby_version = '>= 2.7.0'
 
@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
     'source_code_uri' => spec.homepage,
     'changelog_uri' => "#{spec.homepage}/blob/main/CHANGELOG.md",
     'bug_tracker_uri' => "#{spec.homepage}/issues",
-    'documentation_uri' => 'https://www.rubydoc.info/gems/settingslogic',
+    'documentation_uri' => 'https://www.rubydoc.info/gems/mitre-settingslogic',
     'rubygems_mfa_required' => 'true'
   }
 

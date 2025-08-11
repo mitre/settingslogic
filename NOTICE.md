@@ -1,6 +1,6 @@
 ---
 title: Notice
-description: Legal notices and government contract information for cyber-trackr-live
+description: Legal notices and government contract information for mitre-settingslogic
 layout: doc
 sidebar: true
 ---

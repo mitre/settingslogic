@@ -1,6 +1,6 @@
 ---
 title: License
-description: Apache 2.0 license for the cyber-trackr-live project
+description: Apache 2.0 license for the mitre-settingslogic project
 layout: doc
 sidebar: true
 ---

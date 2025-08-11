@@ -1,6 +1,6 @@
 ---
 title: Code of Conduct
-description: Community standards and guidelines for the cyber-trackr-live project
+description: Community standards and guidelines for the mitre-settingslogic project
 layout: doc
 sidebar: true
 ---
