@@ -20,3 +20,20 @@ RECOVERY-SESSION-*.md
 
 # Archive directory for session/development files
 archive/
+
+# MkDocs build artifacts
+site/
+.mkdocs_cache/
+*.pyc
+__pycache__/
+
+# Built gems and Ruby artifacts
+*.gem
+*.rbc
+/InstalledFiles
+/spec/reports/
+/spec/examples.txt
+
+# YARD documentation artifacts (if we add API docs later)
+.yardoc/
+docs/api/
