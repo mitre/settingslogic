@@ -9,9 +9,19 @@ RSpec::Core::RakeTask.new
 begin
   require 'rubocop/rake_task'
   RuboCop::RakeTask.new
+  
+  desc 'Run RuboCop with autocorrect'
+  task :rubocop_autocorrect do
+    sh 'bundle exec rubocop -a'
+  end
 rescue LoadError
   desc 'Run RuboCop'
   task :rubocop do
+    puts 'RuboCop not available. Install it with: gem install rubocop'
+  end
+  
+  desc 'Run RuboCop with autocorrect'
+  task :rubocop_autocorrect do
     puts 'RuboCop not available. Install it with: gem install rubocop'
   end
 end
@@ -58,9 +68,9 @@ def update_version(new_version)
   content.gsub!(/VERSION = ["'][\d.]+["']/, "VERSION = '#{new_version}'")
   File.write(version_file, content)
   puts "Updated version to #{new_version}"
-  
+
   # Update Gemfile.lock to match new version
-  puts "Updating Gemfile.lock..."
+  puts 'Updating Gemfile.lock...'
   system('bundle install')
 end
 
@@ -159,17 +169,17 @@ end
 # Release tasks
 namespace :release do
   desc 'Prepare patch release'
-  task patch: ['version:patch', :check] do
+  task patch: ['version:patch', :rubocop_autocorrect, :check] do
     prepare_release_commit
   end
 
   desc 'Prepare minor release'
-  task minor: ['version:minor', :check] do
+  task minor: ['version:minor', :rubocop_autocorrect, :check] do
     prepare_release_commit
   end
 
   desc 'Prepare major release'
-  task major: ['version:major', :check] do
+  task major: ['version:major', :rubocop_autocorrect, :check] do
     prepare_release_commit
   end
 
