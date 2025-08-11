@@ -2,6 +2,8 @@
 
 require 'yaml'
 require 'erb'
+require 'date'
+require 'bigdecimal'
 
 # A simple settings solution using a YAML file. See README for more information.
 class Settingslogic < Hash
@@ -10,6 +12,17 @@ class Settingslogic < Hash
   class << self
     def name # :nodoc:
       superclass != Hash && instance.key?('name') ? instance.name : super
+    end
+
+    # Configure additional permitted classes for YAML deserialization
+    # Default: [Symbol, Date, Time, DateTime, BigDecimal]
+    # Example: Settingslogic.yaml_permitted_classes += [MyCustomClass]
+    def yaml_permitted_classes
+      @yaml_permitted_classes ||= [Symbol, Date, Time, DateTime, BigDecimal]
+    end
+
+    def yaml_permitted_classes=(classes)
+      @yaml_permitted_classes = classes
     end
 
     # Enables Settings.get('nested.key.name') for dynamic access
@@ -249,27 +262,33 @@ class Settingslogic < Hash
   def parse_yaml_content(file_content)
     erb_result = ERB.new(file_content).result
 
-    if YAML.respond_to?(:unsafe_load)
-      # Ruby 3.1+ with Psych 4 - fastest for trusted config files
-      YAML.unsafe_load(erb_result).to_hash
-    elsif YAML.respond_to?(:safe_load)
-      # Ruby 3.0+ with safe_load supporting aliases option
-      begin
-        YAML.safe_load(erb_result, aliases: true, permitted_classes: [Symbol, Date, Time]).to_hash
-      rescue ArgumentError
-        # Older versions without aliases parameter
-        YAML.safe_load(erb_result).to_hash
-      end
-    else
-      # Ruby 2.x fallback
-      YAML.safe_load(erb_result).to_hash
-    end
-  rescue Psych::DisallowedClass, Psych::BadAlias => e
-    # Additional fallback for edge cases
-    raise e unless defined?(Psych::VERSION) && Psych::VERSION >= '4.0.0'
+    # Use safe_load for ALL Ruby versions to prevent arbitrary object instantiation
+    # Allow aliases for config files and use configured permitted classes
+    permitted_classes = self.class.yaml_permitted_classes
 
-    raise MissingSetting, 'YAML file contains aliases but they are disabled in Psych 4. ' \
-                          'Please update your YAML file or use unsafe_load.'
+    begin
+      if YAML.respond_to?(:safe_load)
+        # Try with modern safe_load signature (Ruby 2.6+)
+        YAML.safe_load(erb_result, permitted_classes: permitted_classes, aliases: true).to_hash
+      else
+        # Fallback for older Ruby versions
+        YAML.safe_load(erb_result, [Symbol, Date, Time, DateTime, BigDecimal], [], true).to_hash
+      end
+    rescue ArgumentError => e
+      # Handle older safe_load signature (Ruby 2.5 and earlier)
+      raise e unless e.message.include?('unknown keyword') || e.message.include?('wrong number of arguments')
+
+      # Old signature: safe_load(yaml, whitelist_classes, whitelist_symbols, aliases)
+      YAML.safe_load(erb_result, permitted_classes, [], true).to_hash
+    end
+  rescue Psych::DisallowedClass => e
+    # Provide helpful error message for disallowed classes
+    raise MissingSetting, "YAML file contains disallowed class: " \
+                          "#{e.message}. Only Symbol, Date, Time, DateTime, and BigDecimal are permitted."
+  rescue Psych::BadAlias => e
+    # This shouldn't happen with aliases: true, but handle it just in case
+    raise MissingSetting, "YAML file contains aliases but they could not be processed. " \
+                          "Error: #{e.message}"
   end
 
   # Read file contents handling both local files and URIs

@@ -15,11 +15,38 @@ describe 'Settingslogic Security' do
 
       settings = Settingslogic.new({})
 
-      # This should raise an error to prevent arbitrary object instantiation
-      # This is the SECURE behavior we want
+      # All Ruby versions should now reject arbitrary objects for security
       expect do
         settings.send(:parse_yaml_content, yaml_with_object)
-      end.to raise_error(Psych::DisallowedClass)
+      end.to raise_error(Settingslogic::MissingSetting, /disallowed class/)
+    end
+
+    it 'allows custom permitted classes when configured' do
+      # Define a custom class for testing
+      class CustomTestClass
+        attr_accessor :value
+        def initialize(value = nil)
+          @value = value
+        end
+      end
+
+      # Configure settingslogic to permit the custom class
+      original_classes = Settingslogic.yaml_permitted_classes.dup
+      Settingslogic.yaml_permitted_classes += [CustomTestClass]
+
+      yaml_with_custom = <<~YAML
+        custom: !ruby/object:CustomTestClass
+          value: test_value
+      YAML
+
+      settings = Settingslogic.new({})
+      result = settings.send(:parse_yaml_content, yaml_with_custom)
+
+      expect(result['custom']).to be_a(CustomTestClass)
+      expect(result['custom'].value).to eq('test_value')
+
+      # Restore original permitted classes
+      Settingslogic.yaml_permitted_classes = original_classes
     end
 
     it 'safely handles YAML bombs (billion laughs attack)' do

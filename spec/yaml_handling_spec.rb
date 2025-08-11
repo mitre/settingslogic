@@ -109,20 +109,16 @@ describe 'Settingslogic YAML Handling' do
   end
 
   describe 'Ruby version compatibility' do
-    it 'uses appropriate YAML method based on Ruby version' do
+    it 'uses safe_load for security' do
       settings = Settingslogic.new({})
 
-      if YAML.respond_to?(:unsafe_load)
-        # Ruby 3.1+ with Psych 4
-        allow(YAML).to receive(:unsafe_load).and_call_original
+      # All versions should use safe_load for security
+      if YAML.respond_to?(:safe_load)
+        allow(YAML).to receive(:safe_load).and_call_original
         settings.send(:parse_yaml_content, 'test: value')
-        expect(YAML).to have_received(:unsafe_load)
-      elsif YAML.respond_to?(:safe_load)
-        # Ruby 3.0 or 2.7+ with safe_load
-        # This branch may or may not be hit depending on Ruby version
-        expect(YAML.method(:safe_load).parameters.map(&:last)).to include(:aliases) if RUBY_VERSION >= '3.0'
+        expect(YAML).to have_received(:safe_load)
       else
-        # Ruby 2.x fallback
+        # Very old Ruby versions may not have safe_load
         expect(YAML).to respond_to(:load)
       end
     end
